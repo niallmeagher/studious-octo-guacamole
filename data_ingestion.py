@@ -49,7 +49,7 @@ def get_genres(genres_field):
     data = json.loads(genres_field)
     genre_names = [genre.get('name') for genre in data if 'name' in genre]
 
-    return str(genre_names)
+    return genre_names
 
 if __name__ == '__main__':
     # Load dataset
@@ -72,7 +72,7 @@ if __name__ == '__main__':
     for i, row in tqdm(enumerate(ds)):
         cast_names = get_cast_names(row['cast'])
         director_names = get_director_names(row['crew'])
-        genre_names = get_genres(row['genres'])
+        genre_names = str(get_genres(row['genres']))
 
         # Slice the year field from the release date
         release_date = row['release_date'] if 'release_date' in row else None
