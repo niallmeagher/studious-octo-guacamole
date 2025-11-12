@@ -50,22 +50,23 @@ class QueryParser:
         genre = self._extract_genre(query)
         year = self._extract_year(query)
         movie_title = None
-        if 'title' in match.groupdict():
-            movie_title = match.group('title').strip()
+        if match and 'title' in match.groupdict():
+            movie_title = match.group('title').strip().title()
+            print(f'Title {movie_title} identified')
 
         parsed_query = f'SELECT * FROM movies'
 
         query_filters = ''
         if any([genre, year, movie_title]):
-            query_filters += f'\n WHERE '
+            query_filters += f' WHERE '
         
         filter_list = []
         if genre:
-            filter_list.append(f'genres CONTAINS {genre}')
+            filter_list.append(f'genres LIKE \'%{genre}%\'')
         if year:
             filter_list.append(f'year == {year}')
         if movie_title:
-            filter_list.append(f'title CONTAINS {movie_title}')
+            filter_list.append(f'title LIKE \'%{movie_title}%\'')
 
         filters = ' AND '.join(filter_list)
 
@@ -74,7 +75,8 @@ class QueryParser:
 
         return {
             'raw': query,
-            'parsed': parsed_query
+            'parsed': parsed_query,
+            'intent': query_intent or 'Unknown'
         }
 
 
@@ -84,12 +86,15 @@ class QueryParser:
         """Extract genre from query (can currently only handle 1 genre)"""
         for genre in self.genres:
             if genre in query:
+                print(f'Genre {genre} identified')
                 return genre.title()
         return None
     
     def _extract_year(self, query: str) -> Optional[int]:
         """Extract year from query"""
         year_match = re.search(r'\b(19|20)\d{2}\b', query)
+        if year_match:
+            print(f'Year {int(year_match.group())} identified')
         return int(year_match.group()) if year_match else None
     
     # def _extract_attributes(self, query: str) -> List[str]:
